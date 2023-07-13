@@ -32,7 +32,7 @@ export default function Home() {
     const checkApiHealth = async () => {
         try {
             // Change ENDPOINT based on your setup (Default to localhost:8000)
-            const response = await fetch('http://localhost:8000/health');
+            const response = await fetch('https://healthsearch-demo.onrender.com/health');
             const responseData = await response.json();
 
             if (response.status === 200) {
@@ -64,7 +64,7 @@ export default function Home() {
         try {
             // Change ENDPOINT based on your setup (Default to localhost:8000)
             const response = await fetch(
-                'http://localhost:8000/generate_query',
+                'https://healthsearch-demo.onrender.com/generate_query',
                 {
                     method: 'POST',
                     headers: {
