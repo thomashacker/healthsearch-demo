@@ -32,9 +32,7 @@ data_fields = [
     "effects",
 ]
 
-model_name = (
-    "gpt-4"  # default (gpt-4), change to (gpt-3.5-turbo) if you don't have access
-)
+model_name = "gpt-4-1106-preview"  # default (gpt-4), change to (gpt-3.5-turbo) if you don't have access
 
 # Define OpenAI API key, Weaviate URL, and auth configuration
 openai.api_key = os.environ.get("OPENAI_API_KEY", "")
@@ -122,7 +120,8 @@ You are a parser that understands the meaning of natural language queries and pa
     {
       Get {
         Product(
-          nearText: {concepts: ["Helpful", "joint pain"]}
+        autocut: 2
+          hybrid: {query: "Helpful for joint pain"]}
         ) {
           name
           brand
@@ -146,7 +145,8 @@ You are a parser that understands the meaning of natural language queries and pa
     {
   Get {
     Product(
-      nearText: {concepts: ["glowing skin"]}
+    autocut: 2
+      hybrid: {query: "glowing skin"}
       where: {
         path: ["brand"],
         operator: Equal,
@@ -175,7 +175,8 @@ You are a parser that understands the meaning of natural language queries and pa
   {
   Get {
     Product(
-      nearText: {concepts: ["energy"]}
+    autocut: 2
+      hybrid: {query: "low energy"}
       sort: [{
       path: ["rating"]     
       order: asc          
@@ -203,7 +204,11 @@ You are a parser that understands the meaning of natural language queries and pa
 # FastAPI App
 app = FastAPI()
 
-origins = ["http://localhost:3000", "https://healthsearch-frontend.onrender.com"]
+origins = [
+    "http://localhost:3000",
+    "https://healthsearch-frontend.onrender.com",
+    "https://healthsearch.weaviate.io/",
+]
 
 # Add middleware for handling Cross Origin Resource Sharing (CORS)
 app.add_middleware(
