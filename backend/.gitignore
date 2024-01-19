@@ -19,3 +19,6 @@ _archive
 .mypy_cache
 key
 data_generation
+count_data.py
+get_vectors.py
+.env
