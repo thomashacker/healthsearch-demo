@@ -58,7 +58,7 @@ else:
 # Define system prompt for conversation with GPT model
 system_prompt = """
 
-You are a parser that understands the meaning of natural language queries and parses them into valid graphql queries based on this schema:
+You are a Weaviate parser that understands the meaning of natural language queries and parses them into valid Weaviate graphql queries based on this schema:
 
     class_obj = {
         "class": "Product",
@@ -113,7 +113,7 @@ You are a parser that understands the meaning of natural language queries and pa
     }
 
     The query will be used to retrieve supplement products from a Weaviate database, make sure that all fields are returned with the _additional distance attribute.
-    Your answers are only allowed to contain the query, the results will be used directly.
+    Your answers are only allowed to contain the query, the results will be used directly. Don't do any markdown backticks for code formatting.
 
     Example natural language query: 'Which product is helpful for joint pain?' produce this GraphQL query:
 
@@ -121,7 +121,7 @@ You are a parser that understands the meaning of natural language queries and pa
       Get {
         Product(
         autocut: 2
-          hybrid: {query: "Helpful for joint pain"]}
+          hybrid: {query: "Helpful for joint pain"}
         ) {
           name
           brand
@@ -134,7 +134,7 @@ You are a parser that understands the meaning of natural language queries and pa
           effects
           _additional {
             id
-            distance
+            score
           }
         }
       }
@@ -164,7 +164,7 @@ You are a parser that understands the meaning of natural language queries and pa
           effects
       _additional {
       id
-        distance
+        score
       }
     }
   }
@@ -176,7 +176,7 @@ You are a parser that understands the meaning of natural language queries and pa
   Get {
     Product(
     autocut: 2
-      hybrid: {query: "low energy"}
+      nearText: {concepts: ["low energy"]}
       sort: [{
       path: ["rating"]     
       order: asc          
@@ -193,7 +193,7 @@ You are a parser that understands the meaning of natural language queries and pa
           effects
       _additional {
       id
-        distance
+        
       }
     }
   }
@@ -227,31 +227,26 @@ def handle_results(results: dict) -> list:
     """
     try:
         end_results = []
-        data = results["data"]
-        for key in data:
-            query_results = data[key]["Product"]
-            for query_result in query_results:
-                # Add hard filter
-                if len(query_result.get("reviews", [])) >= 5:
-                    end_results.append(
-                        {
-                            "brand": query_result.get("brand", "No brand"),
-                            "name": query_result.get("name", "No name"),
-                            "rating": query_result.get("rating", 0.0),
-                            "ingredients": query_result.get("ingredients", ""),
-                            "description": query_result.get("description", ""),
-                            "summary": query_result.get("summary", ""),
-                            "effects": query_result.get("effects", ""),
-                            "reviews": query_result.get("reviews", []),
-                            "image": query_result.get("image", ""),
-                            "distance": round(
-                                query_result.get("_additional", {"distance": 0})[
-                                    "distance"
-                                ],
-                                2,
-                            ),
-                        }
-                    )
+        data = results["data"]["Get"]["Product"]
+        for query_result in data:
+            # Add hard filter
+            if len(query_result.get("reviews", [])) >= 5:
+                end_results.append(
+                    {
+                        "brand": query_result.get("brand", "No brand"),
+                        "name": query_result.get("name", "No name"),
+                        "rating": query_result.get("rating", 0.0),
+                        "ingredients": query_result.get("ingredients", ""),
+                        "description": query_result.get("description", ""),
+                        "summary": query_result.get("summary", ""),
+                        "effects": query_result.get("effects", ""),
+                        "reviews": query_result.get("reviews", []),
+                        "image": query_result.get("image", ""),
+                        "distance": query_result.get("_additional", {"score": 0})[
+                            "score"
+                        ],
+                    }
+                )
         return end_results
 
     except Exception as e:
@@ -443,13 +438,21 @@ def modify_graphql(graphQuery: str, natural_query: str, fields: list) -> str:
     # Pattern to match 'limit'
     limit_pattern = r"(limit:\s*\d+)"
 
+    # Pattern to match 'autocut'
+    autocut_pattern = r"(autocut:\s*\d+)"
+
     # Check if 'limit' field exists and if it's greater than 5
     limit_match = re.search(limit_pattern, graphQuery)
+    autocut_match = re.search(autocut_pattern, graphQuery)
     if limit_match:
         # Limit field exists, ensure it's not greater than 5
         limit_value = int(limit_match.group().split(":")[1].strip())
         if limit_value > 5:
             graphQuery = re.sub(limit_pattern, "limit: 5", graphQuery)
+
+    elif autocut_match:
+        graphQuery = re.sub(autocut_pattern, "limit: 5", graphQuery)
+
     else:
         # 'limit' field doesn't exist, add it
         graphQuery = re.sub(r"Product\(", "Product(\n      limit: 5", graphQuery)
