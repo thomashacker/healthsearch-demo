@@ -4,7 +4,7 @@ pathlib
 black
 fastapi
 uvicorn
-openai
+openai==0.27.8
 weaviate-client
 mypy
 python-dotenv
