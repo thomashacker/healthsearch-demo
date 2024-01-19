@@ -207,7 +207,7 @@ app = FastAPI()
 origins = [
     "http://localhost:3000",
     "https://healthsearch-frontend.onrender.com",
-    "https://healthsearch.weaviate.io/",
+    "https://healthsearch.weaviate.io",
 ]
 
 # Add middleware for handling Cross Origin Resource Sharing (CORS)
