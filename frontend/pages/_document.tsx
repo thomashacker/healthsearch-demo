@@ -5,7 +5,7 @@ export default function Document() {
     return (
         <Html lang="en">
             <Head>
-                <GoogleAnalytics gaId="G-QDWDLFK50G" />
+
             </Head>
             <body>
                 <Main />
