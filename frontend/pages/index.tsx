@@ -118,9 +118,8 @@ export default function Home() {
                 </div>
             )}
             <div
-                className={`flex-shrink-0 ${
-                    isSidebarCollapsed ? 'sm:w-0 md:w-0' : 'sm:w-1/3 w-full'
-                } transition-width duration-200`}
+                className={`flex-shrink-0 ${isSidebarCollapsed ? 'sm:w-0 md:w-0' : 'sm:w-1/3 w-full'
+                    } transition-width duration-200`}
             >
                 <SidebarCard
                     onSend={handleSend}
@@ -136,9 +135,8 @@ export default function Home() {
                 />
             </div>
             <div
-                className={`flex-grow lg:w-2/3 min-h-screen overflow-y-auto ${
-                    isSidebarCollapsed ? 'block' : 'hidden'
-                } lg:block`}
+                className={`flex-grow lg:w-2/3 min-h-screen overflow-y-auto ${isSidebarCollapsed ? 'block' : 'hidden'
+                    } lg:block`}
                 style={{
                     backgroundImage: "url('/background.png')",
                     backgroundSize: 'cover',
@@ -170,9 +168,8 @@ export default function Home() {
             </div>
             <button
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className={`fixed top-1/2 transform -translate-y-1/2 z-10 bg-zinc-500 text-white font-mono text-sm p-2 rounded-full transition-transform duration-200 ease-in-out hover:scale-105 lg:hidden hover:bg-green-500 ${
-                    isSidebarCollapsed ? 'left-0 ml-4' : 'right-0 mr-4'
-                }`}
+                className={`fixed top-1/2 transform -translate-y-1/2 z-10 bg-zinc-500 text-white font-mono text-sm p-2 rounded-full transition-transform duration-200 ease-in-out hover:scale-105 lg:hidden hover:bg-green-500 ${isSidebarCollapsed ? 'left-0 ml-4' : 'right-0 mr-4'
+                    }`}
             >
                 {isSidebarCollapsed ? <FaAngleLeft /> : <FaAngleRight />}
             </button>
