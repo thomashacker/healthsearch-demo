@@ -41,8 +41,6 @@ export default function Home() {
             if (response.status === 200) {
                 setApiStatus('Online');
                 setRequests(responseData.requests);
-                setCached(responseData.cache_count);
-                setCachedQueries(responseData.cache_queries);
             } else {
                 setApiStatus('Offline');
             }

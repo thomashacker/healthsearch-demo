@@ -300,21 +300,6 @@ def get_cache(natural_query: str) -> dict:
     return {"data": {"Get": {"Healthsearch_CachedResult": []}}}
 
 
-def get_cache_count() -> list:
-    """Update the global cache count and return all cached queries
-    @returns list of queries
-    """
-    query = client.query.get("Healthsearch_CachedResult", ["naturalQuery"]).do()
-    if "data" in query:
-        cachedQueries = [
-            naturalQuery["naturalQuery"]
-            for naturalQuery in query["data"]["Get"]["Healthsearch_CachedResult"]
-        ]
-        return cachedQueries
-    else:
-        []
-
-
 def check_cache(cache_results: dict, natural_query: str, max_distance: float) -> dict:
     """Check if retrieved results are empty and use semantic search to find similar cached results based on the natural query
     @parameter cache_results : dict - Weaviate retrieved results
@@ -492,14 +477,12 @@ async def root():
     global cache_count
 
     try:
-        cached_queries = get_cache_count()
-        cache_count = len(cached_queries)
         return JSONResponse(
             content={
                 "message": "Alive!",
                 "requests": request_count,
-                "cache_count": cache_count,
-                "cache_queries": cached_queries,
+                "cache_count": 0,
+                "cache_queries": [""],
             }
         )
     except Exception as e:
