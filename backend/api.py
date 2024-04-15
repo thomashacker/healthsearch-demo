@@ -305,11 +305,14 @@ def get_cache_count() -> list:
     @returns list of queries
     """
     query = client.query.get("Healthsearch_CachedResult", ["naturalQuery"]).do()
-    cachedQueries = [
-        naturalQuery["naturalQuery"]
-        for naturalQuery in query["data"]["Get"]["Healthsearch_CachedResult"]
-    ]
-    return cachedQueries
+    if "data" in query:
+        cachedQueries = [
+            naturalQuery["naturalQuery"]
+            for naturalQuery in query["data"]["Get"]["Healthsearch_CachedResult"]
+        ]
+        return cachedQueries
+    else:
+        []
 
 
 def check_cache(cache_results: dict, natural_query: str, max_distance: float) -> dict:
