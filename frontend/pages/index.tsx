@@ -23,6 +23,9 @@ export default function Home() {
     const [cached, setCached] = useState<number>(0); // Number of cached results
     const [cachedQueries, setCachedQueries] = useState<string[]>([]); // List of cached queries
 
+    const endpoint = "http://localhost:8000"
+    //const endpoint = "https://healthsearch-demo.onrender.com"
+
     // State variable for generative search
     const [generativeResult, setGenerativeResult] = useState<string>(
         'Welcome to Healthsearch!',
@@ -32,7 +35,7 @@ export default function Home() {
     const checkApiHealth = async () => {
         try {
             // Change ENDPOINT based on your setup (Default to localhost:8000)
-            const response = await fetch('https://healthsearch-demo.onrender.com/health');
+            const response = await fetch(endpoint + '/health');
             const responseData = await response.json();
 
             if (response.status === 200) {
@@ -63,7 +66,7 @@ export default function Home() {
         try {
             // Change ENDPOINT based on your setup (Default to localhost:8000)
             const response = await fetch(
-                'https://healthsearch-demo.onrender.com/generate_query',
+                endpoint + '/generate_query',
                 {
                     method: 'POST',
                     headers: {

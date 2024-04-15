@@ -61,7 +61,7 @@ system_prompt = """
 You are a Weaviate parser that understands the meaning of natural language queries and parses them into valid Weaviate graphql queries based on this schema:
 
     class_obj = {
-        "class": "Product",
+        "class": "Healthsearch_Product",
         "description": "Supplementary products from iHerb",
         "properties": [
             {
@@ -119,8 +119,8 @@ You are a Weaviate parser that understands the meaning of natural language queri
 
     {
       Get {
-        Product(
-        autocut: 2
+        Healthsearch_Product(
+        autocut: 3
           hybrid: {query: "Helpful for joint pain"}
         ) {
           name
@@ -144,8 +144,8 @@ You are a Weaviate parser that understands the meaning of natural language queri
 
     {
   Get {
-    Product(
-    autocut: 2
+    Healthsearch_Product(
+    autocut: 3
       hybrid: {query: "glowing skin"}
       where: {
         path: ["brand"],
@@ -174,8 +174,8 @@ You are a Weaviate parser that understands the meaning of natural language queri
 
   {
   Get {
-    Product(
-    autocut: 2
+    Healthsearch_Product(
+    autocut: 3
       nearText: {concepts: ["low energy"]}
       sort: [{
       path: ["rating"]     
@@ -227,7 +227,7 @@ def handle_results(results: dict) -> list:
     """
     try:
         end_results = []
-        data = results["data"]["Get"]["Product"]
+        data = results["data"]["Get"]["Healthsearch_Product"]
         for query_result in data:
             # Add hard filter
             if len(query_result.get("reviews", [])) >= 5:
@@ -282,7 +282,7 @@ def get_cache(natural_query: str) -> dict:
 
     results = (
         client.query.get(
-            "CachedResult", ["naturalQuery", "graphQuery", "products", "summary"]
+            "Healthsearch_CachedResult", ["naturalQuery", "graphQuery", "products", "summary"]
         )
         .with_where(filter)
         .with_limit(1)
@@ -291,23 +291,23 @@ def get_cache(natural_query: str) -> dict:
 
     if "errors" in results:
         msg.warn(f"Error in get_cache: {results}")
-        return {"data": {"Get": {"CachedResult": []}}}
+        return {"data": {"Get": {"Healthsearch_CachedResult": []}}}
 
-    if results["data"]["Get"]["CachedResult"]:
-        if natural_query == results["data"]["Get"]["CachedResult"][0]["naturalQuery"]:
+    if results["data"]["Get"]["Healthsearch_CachedResult"]:
+        if natural_query == results["data"]["Get"]["Healthsearch_CachedResult"][0]["naturalQuery"]:
             return results
 
-    return {"data": {"Get": {"CachedResult": []}}}
+    return {"data": {"Get": {"Healthsearch_CachedResult": []}}}
 
 
 def get_cache_count() -> list:
     """Update the global cache count and return all cached queries
     @returns list of queries
     """
-    query = client.query.get("CachedResult", ["naturalQuery"]).do()
+    query = client.query.get("Healthsearch_CachedResult", ["naturalQuery"]).do()
     cachedQueries = [
         naturalQuery["naturalQuery"]
-        for naturalQuery in query["data"]["Get"]["CachedResult"]
+        for naturalQuery in query["data"]["Get"]["Healthsearch_CachedResult"]
     ]
     return cachedQueries
 
@@ -319,11 +319,11 @@ def check_cache(cache_results: dict, natural_query: str, max_distance: float) ->
     @parameter max_distance : float - Distance threshold for semantic search
     @returns dict | None - Data object retrieved from weaviate
     """
-    if cache_results["data"]["Get"]["CachedResult"]:
+    if cache_results["data"]["Get"]["Healthsearch_CachedResult"]:
         msg.good("Cache entry exists!")
-        cache_results["data"]["Get"]["CachedResult"][0]["summary"] = (
+        cache_results["data"]["Get"]["Healthsearch_CachedResult"][0]["summary"] = (
             "🛰️ RETRIEVED FROM CACHE: "
-            + cache_results["data"]["Get"]["CachedResult"][0]["summary"]
+            + cache_results["data"]["Get"]["Healthsearch_CachedResult"][0]["summary"]
         )
         return cache_results
     else:
@@ -331,29 +331,29 @@ def check_cache(cache_results: dict, natural_query: str, max_distance: float) ->
         nearText = {"concepts": [natural_query], "max_distance": max_distance}
         results = (
             client.query.get(
-                "CachedResult", ["naturalQuery", "graphQuery", "products", "summary"]
+                "Healthsearch_CachedResult", ["naturalQuery", "graphQuery", "products", "summary"]
             )
             .with_near_text(nearText)
             .with_limit(1)
             .with_additional(["distance"])
             .do()
         )
-        if not results["data"]["Get"]["CachedResult"]:
+        if not results["data"]["Get"]["Healthsearch_CachedResult"]:
             msg.warn("No similar cache entry match")
             return {}
         elif (
-            results["data"]["Get"]["CachedResult"][0]["_additional"]["distance"]
+            results["data"]["Get"]["Healthsearch_CachedResult"][0]["_additional"]["distance"]
             > max_distance
         ):
             msg.warn("No similar cache entry match")
             return {}
         else:
             msg.good(
-                f'Retrieved similar results (distance {results["data"]["Get"]["CachedResult"][0]["_additional"]["distance"]})'
+                f'Retrieved similar results (distance {results["data"]["Get"]["Healthsearch_CachedResult"][0]["_additional"]["distance"]})'
             )
-            results["data"]["Get"]["CachedResult"][0]["summary"] = (
-                f"⭐ RETURNED SIMILAR CACHED RESULTS FROM QUERY '{results['data']['Get']['CachedResult'][0]['naturalQuery']}' ({round(results['data']['Get']['CachedResult'][0]['_additional']['distance'],2)}) : "
-                + results["data"]["Get"]["CachedResult"][0]["summary"]
+            results["data"]["Get"]["Healthsearch_CachedResult"][0]["summary"] = (
+                f"⭐ RETURNED SIMILAR CACHED RESULTS FROM QUERY '{results['data']['Get']['Healthsearch_CachedResult'][0]['naturalQuery']}' ({round(results['data']['Get']['Healthsearch_CachedResult'][0]['_additional']['distance'],2)}) : "
+                + results["data"]["Get"]["Healthsearch_CachedResult"][0]["summary"]
             )
             return results
 
@@ -375,7 +375,7 @@ def add_cache(naturalQuery: str, graphQuery: str, results: dict, summary: str) -
 
     with client.batch as batch:
         batch.batch_size = 1
-        client.batch.add_data_object(data_object, "CachedResult")
+        client.batch.add_data_object(data_object, "Healthsearch_CachedResult")
 
     msg.good("Added new cache entry")
 
@@ -455,7 +455,7 @@ def modify_graphql(graphQuery: str, natural_query: str, fields: list) -> str:
 
     else:
         # 'limit' field doesn't exist, add it
-        graphQuery = re.sub(r"Product\(", "Product(\n      limit: 5", graphQuery)
+        graphQuery = re.sub(r"Healthsearch_Product\(", "Healthsearch_Product(\n      limit: 5", graphQuery)
 
     # Replacement '_additional'
     replacement = f"""
@@ -539,13 +539,13 @@ async def generate_query(payload: NLQuery):
     results = check_cache(get_cache(query_text), query_text, 0.14)
 
     if len(results) > 0:
-        products = json.loads(results["data"]["Get"]["CachedResult"][0]["products"])
+        products = json.loads(results["data"]["Get"]["Healthsearch_CachedResult"][0]["products"])
 
         return JSONResponse(
             content={
-                "query": results["data"]["Get"]["CachedResult"][0]["graphQuery"],
+                "query": results["data"]["Get"]["Healthsearch_CachedResult"][0]["graphQuery"],
                 "results": products,
-                "generative_summary": results["data"]["Get"]["CachedResult"][0][
+                "generative_summary": results["data"]["Get"]["Healthsearch_CachedResult"][0][
                     "summary"
                 ],
             }
@@ -613,7 +613,7 @@ async def generate_query(payload: NLQuery):
 
                 else:
                     generative_summary = str(
-                        generative_results["data"]["Get"]["Product"][0]["_additional"][
+                        generative_results["data"]["Get"]["Healthsearch_Product"][0]["_additional"][
                             "generate"
                         ]["groupedResult"]
                     )

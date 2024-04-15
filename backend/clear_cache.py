@@ -35,7 +35,7 @@ def main() -> None:
     msg.good("Client connected to Weaviate Instance")
 
     cache_obj = {
-        "class": "CachedResult",
+        "class": "Healthsearch_CachedResult",
         "description": "Cached results",
         "properties": [
             {
@@ -86,10 +86,10 @@ def main() -> None:
         "vectorizer": "text2vec-openai",
     }
 
-    if not client.schema.exists("CachedResult"):
+    if not client.schema.exists("Healthsearch_CachedResult"):
         client.schema.create_class(cache_obj)
     else:
-        client.schema.delete_class("CachedResult")
+        client.schema.delete_class("Healthsearch_CachedResult")
         client.schema.create_class(cache_obj)
 
     msg.good("Cache cleared")

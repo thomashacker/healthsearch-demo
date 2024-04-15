@@ -46,7 +46,7 @@ def main(data_path: Path) -> None:
         return
 
     class_obj = {
-        "class": "Product",
+        "class": "Healthsearch_Product",
         "description": "Supplement products",
         "properties": [
             {
@@ -156,13 +156,13 @@ def main(data_path: Path) -> None:
         "vectorizer": "text2vec-openai",
     }
 
-    if not client.schema.exists("Product"):
+    if not client.schema.exists("Healthsearch_Product"):
         client.schema.create_class(class_obj)
-        msg.warn(f"Product class was created because it didn't exist.")
+        msg.warn(f"Healthsearch_Product class was created because it didn't exist.")
     else:
         # WARNING THIS DELETES ALL PRODUCTS AND CREATES A NEW PRODUCT CLASS
-        client.schema.delete_class("Product")
-        msg.info(f"Product class was removed because it already exists")
+        client.schema.delete_class("Healthsearch_Product")
+        msg.info(f"Healthsearch_Product class was removed because it already exists")
         client.schema.create_class(class_obj)
 
     with client.batch as batch:
@@ -188,16 +188,16 @@ def main(data_path: Path) -> None:
             # Check if vector exists in dataset
             if "vector" in data[d]:
                 client.batch.add_data_object(
-                    properties, "Product", vector=data[d]["vector"]
+                    properties, "Healthsearch_Product", vector=data[d]["vector"]
                 )
             else:
-                client.batch.add_data_object(properties, "Product")
+                client.batch.add_data_object(properties, "Healthsearch_Product")
 
     msg.good("Data imported")
     msg.divider("Starting to initialize Cache")
 
     cache_obj = {
-        "class": "CachedResult",
+        "class": "Healthsearch_CachedResult",
         "description": "Cached results",
         "properties": [
             {
@@ -248,13 +248,13 @@ def main(data_path: Path) -> None:
         "vectorizer": "text2vec-openai",
     }
 
-    if not client.schema.exists("CachedResult"):
+    if not client.schema.exists("Healthsearch_CachedResult"):
         client.schema.create_class(cache_obj)
-        msg.warn(f"CachedResult class was created because it didn't exist.")
+        msg.warn(f"Healthsearch_CachedResult class was created because it didn't exist.")
     else:
         # WARNING THIS DELETES ALL CACHED RESULTS AND CREATES A NEW CACHE CLASS
-        client.schema.delete_class("CachedResult")
-        msg.info(f"CachedResult class was removed because it already exists")
+        client.schema.delete_class("Healthsearch_CachedResult")
+        msg.info(f"Healthsearch_CachedResult class was removed because it already exists")
         client.schema.create_class(cache_obj)
 
     msg.good("Cache initialized")
